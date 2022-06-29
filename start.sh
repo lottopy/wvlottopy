@@ -4,15 +4,15 @@
 # MIT License
 # Edit to your need
 
-echo "Powerball" && 
+echo "<--------> Powerball <-------->" && 
 python lottopy_pb.py && 
-echo "MegaMillions" && 
+echo "<--------> MegaMillions <-------->" && 
 python megamil.py && 
-echo "Lotto America" && 
+echo "<--------> Lotto America <-------->" && 
 python lotto_america.py &&
-echo "Daily3" && 
+echo "<--------> Daily3 <-------->" && 
 python daily3.py && 
-echo "Daily4" && 
+echo "<--------> Daily4 <-------->" && 
 python daily4.py &&
-echo "Cash25" && 
+echo "<--------> Cash25 <-------->" && 
 python cash25.py

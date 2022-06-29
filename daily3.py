@@ -5,7 +5,7 @@ import requests
 from collections import Counter
 
 def get_data():
-    url = 'https://wvlottery.com/draw-games/daily-3/?game-analyze=daily-3&what-to-search=historysearch&date-range=1'
+    url = 'https://wvlottery.com/draw-games/daily-3/?game-analyze=daily-3&what-to-search=historysearch&date-range=-1'
     header = {
         "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36",
         "X-Requested-With": "XMLHttpRequest"
@@ -37,7 +37,7 @@ for n in range(0, 10):
 
 sorted_nums = sorted(likely_nums)
 total_freq = sum(frequency) 
-Chance  = frac(total_freq, 1000) # Chance = number call freq / all possible numbers i.e. 1000
+Chance  = frac(total_freq, 15000) # Chance = number call freq / all possible numbers i.e. 1000
 Winning_Numbers = str("-".join(sorted_nums))
 
 print(f"Likely numbers are . . .  {Winning_Numbers} \n"
