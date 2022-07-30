@@ -49,7 +49,7 @@ for n in range(0, 25):
 sorted_nums = sorted(likely_nums)
 total_freq = sum(frequency + frequency_mb) 
 Chance = frac(total_freq, 302575350) # Chance = number call freq / all possible numbers i.e. 11238513
-Winning_Numbers = str("-".join(sorted_nums))
+Forecast = str("-".join(sorted_nums))
 
-print(f"Likely numbers are . . .  {Winning_Numbers} MB: {MB}\n"
+print(f"Likely numbers are . . .  {Forecast} MB: {MB}\n"
 f"With percent chance of winning being {Chance}")
