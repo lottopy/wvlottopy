@@ -38,7 +38,8 @@ for n in range(0, 10):
 sorted_nums = sorted(likely_nums)
 total_freq = sum(frequency) 
 Chance  = frac(total_freq, 15000) # Chance = number call freq / all possible numbers i.e. 1000
-Winning_Numbers = str("-".join(sorted_nums))
+Forecast = str("-".join(sorted_nums))
 
-print(f"Likely numbers are . . .  {Winning_Numbers} \n"
-f"With percent chance of winning being {Chance}")
+print(f"Likely numbers are . . .  {Forecast} \n"
+f"With percent chance of winning being {Chance} \n"
+f"DISCLAIMER: This set's chance is innacurate due to how many numbers are drawn per day.")
