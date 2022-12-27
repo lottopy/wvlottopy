@@ -16,10 +16,10 @@ def get_data():
 
     # Get web data
     r = requests.get(url, headers=header)
-    dfs = pd.read_html(r.text)
+    dfs = list(pd.read_html(r.text))
     pd.set_option('display.max_rows', None)
     # Specifies no max rows, otherwise only shows 10 records
-    df = dfs[0].append(salvaged, ignore_index=True)
+    df = pd.concat([dfs[0], salvaged], ignore_index=True)
     df2 = df[['Date', 'Numbers', 'SB', 'All Star']]
     date = list(df2['Date']) 
     nums = list(df2['Numbers'].astype('str')) 
