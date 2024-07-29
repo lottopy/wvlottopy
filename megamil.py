@@ -3,6 +3,8 @@ from fractions import Fraction as frac
 import pandas as pd
 import requests
 from collections import Counter
+from io import StringIO
+
 
 def get_data():
     # previous records which have since been removed from wvlottery.com's database
@@ -17,7 +19,7 @@ def get_data():
 
     # Get web data
     r = requests.get(url, headers=header)
-    dfs = list(pd.read_html(r.text))
+    dfs = list(pd.read_html(StringIO(r.text)))
     pd.set_option('display.max_rows', None)
     # Specifies no max rows, otherwise only shows 10 records
     df = pd.concat([dfs[0], salvaged], ignore_index=True)
