@@ -3,6 +3,8 @@ from fractions import Fraction as frac
 import pandas as pd
 import requests
 from collections import Counter
+from io import StringIO
+
 
 def get_data():
     url = 'https://wvlottery.com/draw-games/daily-3/?game-analyze=daily-3&what-to-search=historysearch&date-range=-1'
@@ -12,7 +14,7 @@ def get_data():
     }
     # Get web data
     r = requests.get(url, headers=header)
-    dfs = pd.read_html(r.text)
+    dfs = list(pd.read_html(StringIO(r.text)))
     pd.set_option('display.max_rows', None)
     # Specifies no max rows, otherwise only shows 10 records
     df = dfs[0]

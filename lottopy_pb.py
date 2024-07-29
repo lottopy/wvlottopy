@@ -17,7 +17,9 @@ def get_data():
     }
     # Get web data
     r = requests.get(url, headers=header)
-    dfs = list(pd.read_html(r.text))
+    from io import StringIO
+    
+    dfs = list(pd.read_html(StringIO(r.text)))
     pd.set_option('display.max_rows', None)
     # Specifies no max rows, otherwise only shows 10 records
     df = pd.concat([dfs[0], salvaged], ignore_index=True)
