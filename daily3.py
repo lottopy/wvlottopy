@@ -3,18 +3,26 @@ from fractions import Fraction as frac
 import pandas as pd
 import requests
 from collections import Counter
-from io import StringIO
 
 
 def get_data():
-    url = 'https://wvlottery.com/draw-games/daily-3/?game-analyze=daily-3&what-to-search=historysearch&date-range=-1'
+    url = 'https://gateway.loyalty.wvlottery.com/services/jackpot/api/v1/jackpot-results?gameId=9&jackpotStatus=PAYABLE&size=500&sort=externalId,drawDate,desc&page='
     header = {
         "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36",
-        "X-Requested-With": "XMLHttpRequest"
     }
-    # Get web data
-    r = requests.get(url, headers=header)
-    dfs = list(pd.read_html(StringIO(r.text)))
+    # Get web data, the new site pulls past draws from json 500 at a time
+    web = {'Date': [], 'Numbers': []}
+    page = 0
+    while True:
+        r = requests.get(url + str(page), headers=header)
+        data = r.json()
+        for x in data['content']:
+            web['Date'].append(x['drawingDate'])
+            web['Numbers'].append('–'.join(str(n['data']) for n in x['resultData'] if n['type'] == 'REGULAR'))
+        if data['last']:
+            break
+        page += 1
+    dfs = [pd.DataFrame(web)]
     pd.set_option('display.max_rows', None)
     # Specifies no max rows, otherwise only shows 10 records
     df = dfs[0]

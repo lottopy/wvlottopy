@@ -15,4 +15,6 @@ python daily3.py &&
 echo "<--------> Daily4 <-------->" && 
 python daily4.py &&
 echo "<--------> Cash25 <-------->" && 
-python cash25.py
+python cash25.py &&
+echo "<--------> Cash Pop <-------->" && 
+python cashpop.py

@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Output from the scripts
+*_ans.csv
+*.log
+
+# Secrets and local config
+.env
+.env.*
+*.pem
+*.key
+secrets.py
+
+# Editor junk
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store

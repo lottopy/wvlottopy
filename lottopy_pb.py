@@ -3,28 +3,36 @@ from fractions import Fraction as frac
 import pandas as pd
 import requests
 from collections import Counter
-from io import StringIO
 
 
 def get_data():
     # previous records which have since been removed from wvlottery.com's database
     df_old = pd.read_excel('./excel_lotto_records/lotto.xlsx')
-    salvaged = df_old[['Date', 'Numbers', 'PB', 'PPX', 'Winners WV Only', 'Payout WV Only']]
+    salvaged = df_old[['Date', 'Numbers', 'PB']]
 
     # Current web records 
-    url = 'https://wvlottery.com/draw-games/powerball/?game-analyze=powerball&what-to-search=historysearch&date-range=-1'
+    url = 'https://gateway.loyalty.wvlottery.com/services/jackpot/api/v1/jackpot-results?gameId=12&jackpotStatus=PAYABLE&size=500&sort=externalId,drawDate,desc&page='
     header = {
         "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36",
-        "X-Requested-With": "XMLHttpRequest"
     }
-    # Get web data
-    r = requests.get(url, headers=header)
-    
-    dfs = list(pd.read_html(StringIO(r.text)))
+    # Get web data, the new site pulls past draws from json 500 at a time
+    web = {'Date': [], 'Numbers': [], 'PB': []}
+    page = 0
+    while True:
+        r = requests.get(url + str(page), headers=header)
+        data = r.json()
+        for x in data['content']:
+            web['Date'].append(x['drawingDate'])
+            web['Numbers'].append('–'.join(str(n['data']) for n in x['resultData'] if n['type'] == 'REGULAR'))
+            web['PB'].append([n['data'] for n in x['resultData'] if n['type'] == 'SPECIAL'][0])
+        if data['last']:
+            break
+        page += 1
+    dfs = [pd.DataFrame(web)]
     pd.set_option('display.max_rows', None)
     # Specifies no max rows, otherwise only shows 10 records
     df = pd.concat([dfs[0], salvaged], ignore_index=True)
-    df2 = df[['Date', 'Numbers', 'PB', 'PPX', 'Winners WV Only', 'Payout WV Only']]
+    df2 = df[['Date', 'Numbers', 'PB']]
     date = list(df2['Date']) 
     nums = list(df2['Numbers'].astype('str')) 
     PBs = list(df2['PB'].astype('int'))
