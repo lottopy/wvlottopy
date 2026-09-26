@@ -1,11 +1,13 @@
 # WVLottopy: Matteo DiBiagio
 from fractions import Fraction as frac
+from math import comb
 import pandas as pd
 import requests
 from collections import Counter
 
 
 def get_data():
+    # Old records from the excel sheets, wvlottery.com took these down but they go back to the early 90s on some games
     df_old = pd.read_excel('./excel_lotto_records/lotto_america.xlsx')
     salvaged = df_old[['Date', 'Numbers', 'SB']]
 
@@ -39,11 +41,16 @@ def get_data():
 date, nums, SBs = get_data()
 
 # Formatting 
+# Site numbers come split by – and the excel records by - so it splits on both
 hyphenfree = []
 for x in nums:
-    hyphenfree.append(x.replace('–',', ')) 
+    hyphenfree.append(x.replace('–',', ').replace('-',', ')) 
 splitlist = ", ".join(hyphenfree)
 sep = splitlist.split(", ")
+# Only count numbers that can still be called, the ball ranges have changed over the years
+# so the old records have some numbers that dont exist in the game anymore
+sep = [x for x in sep if x.isdigit() and 1 <= int(x) <= 52]
+SBs = [x for x in SBs if 1 <= x <= 10]
 
 for n in range(0, 52):
     most_common= Counter(sep).most_common(5)
@@ -56,8 +63,9 @@ for n in range(0, 10):
     frequency_sb = [v[-1] for v in most_common_sb]
 
 sorted_nums = sorted(likely_nums, key=lambda x: (len(x), x))
-total_freq = sum(frequency + frequency_sb) 
-Chance = frac(total_freq, 25989600) # Chance = number call freq / all possible numbers i.e. 25,989,600
+# Chance = 1 / every possible ticket, 52 choose 5 white balls times 10 star balls = 25989600
+# every ticket has the same odds, the forecast just goes with the numbers that get called the most
+Chance = frac(1, comb(52, 5) * 10)
 Forecast = str(" - ".join(sorted_nums))
 
 print(f"Likely numbers are . . .  {Forecast} SB: {SB}\n"

@@ -38,11 +38,14 @@ def get_data():
 date, nums = get_data()
 
 # Formatting 
+# Site numbers come split by – and the excel records by - so it splits on both
 hyphenfree = []
 for x in nums:
-    hyphenfree.append(x.replace('–',', ')) 
+    hyphenfree.append(x.replace('–',', ').replace('-',', ')) 
 splitlist = ", ".join(hyphenfree)
 sep = splitlist.split(", ")
+# Only keep actual digits, gets rid of any blanks from the excel records
+sep = [x for x in sep if x.isdigit() and int(x) <= 9]
 
 for n in range(0, 9):
     most_common= Counter(sep).most_common(4)
@@ -50,8 +53,9 @@ for n in range(0, 9):
     frequency = [v[-1] for v in most_common]
 
 sorted_nums = sorted(likely_nums, key=lambda x: (len(x), x))
-total_freq = sum(frequency) 
-Chance  = frac(total_freq, 10000) # Chance = number call freq / all possible numbers i.e. 10000
+# Chance = playing the forecast as a box (any order), 4 different digits can come up 24 ways out of 10000 = 3/1250
+# playing it straight (exact order) is 1/10000
+Chance = frac(24, 10000)
 Forecast = str(" - ".join(sorted_nums))
 
 print(f"Likely numbers are . . .  {Forecast} \n"

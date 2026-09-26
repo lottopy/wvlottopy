@@ -34,6 +34,8 @@ for x in nums:
     hyphenfree.append(x.replace('–',', ')) 
 splitlist = ", ".join(hyphenfree)
 sep = splitlist.split(", ")
+# Only keep 1 - 15, just in case anything weird comes back from the site
+sep = [x for x in sep if x.isdigit() and 1 <= int(x) <= 15]
 
 for n in range(0, 15):
     most_common= Counter(sep).most_common(3)

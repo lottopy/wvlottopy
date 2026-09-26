@@ -1,5 +1,6 @@
 # WVLottopy megamil: Matteo DiBiagio
 from fractions import Fraction as frac
+from math import comb
 import pandas as pd
 import requests
 from collections import Counter
@@ -40,11 +41,16 @@ def get_data():
 date, nums, MBs = get_data()
 
 # Formatting 
+# Site numbers come split by – and the excel records by - so it splits on both
 hyphenfree = []
 for x in nums:
-    hyphenfree.append(x.replace('–',', ')) 
+    hyphenfree.append(x.replace('–',', ').replace('-',', ')) 
 splitlist = ", ".join(hyphenfree)
 sep = splitlist.split(", ")
+# Only count numbers that can still be called, the ball ranges have changed over the years
+# so the old records have some numbers that dont exist in the game anymore
+sep = [x for x in sep if x.isdigit() and 1 <= int(x) <= 70]
+MBs = [x for x in MBs if 1 <= x <= 24]
 
 for n in range(0, 70):
     most_common= Counter(sep).most_common(5)
@@ -57,8 +63,9 @@ for n in range(0, 25):
     frequency_mb = [v[-1] for v in most_common_mb]
 
 sorted_nums = sorted(likely_nums, key=lambda x: (len(x), x))
-total_freq = sum(frequency + frequency_mb) 
-Chance = frac(total_freq, 290472336) # Chance = number call freq / all possible numbers i.e. 290472336
+# Chance = 1 / every possible ticket, 70 choose 5 white balls times 24 mega balls = 290472336
+# every ticket has the same odds, the forecast just goes with the numbers that get called the most
+Chance = frac(1, comb(70, 5) * 24)
 Forecast = str(" - ".join(sorted_nums))
 
 print(f"Likely numbers are . . .  {Forecast} MB: {MB}\n"

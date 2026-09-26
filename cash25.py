@@ -1,5 +1,6 @@
 # WVLottopy: Matteo DiBiagio
 from fractions import Fraction as frac
+from math import comb
 import pandas as pd
 import requests
 from collections import Counter
@@ -38,11 +39,15 @@ def get_data():
 date, nums = get_data()
 
 # Formatting 
+# Site numbers come split by – and the excel records by - so it splits on both
 hyphenfree = []
 for x in nums:
-    hyphenfree.append(x.replace('–',', ')) 
+    hyphenfree.append(x.replace('–',', ').replace('-',', ')) 
 splitlist = ", ".join(hyphenfree)
 sep = splitlist.split(", ")
+# Only count numbers that can still be called, the ball ranges have changed over the years
+# so the old records have some numbers that dont exist in the game anymore
+sep = [x for x in sep if x.isdigit() and 1 <= int(x) <= 25]
 
 for n in range(0, 25):
     most_common= Counter(sep).most_common(6)
@@ -50,8 +55,9 @@ for n in range(0, 25):
     frequency = [v[-1] for v in most_common]
 
 sorted_nums = sorted(likely_nums, key=lambda x: (len(x), x))
-total_freq = sum(frequency) 
-Chance  = frac(total_freq, 177100) # Chance = number call freq / all possible numbers i.e. 177100
+# Chance = 1 / every possible ticket, 25 choose 6 = 177100
+# every ticket has the same odds, the forecast just goes with the numbers that get called the most
+Chance = frac(1, comb(25, 6))
 Forecast = str(" - ".join(sorted_nums))
 
 print(f"Likely numbers are . . . {Forecast} \n" 

@@ -1,5 +1,6 @@
 # WVLottopy: Matteo DiBiagio
 from fractions import Fraction as frac
+from math import comb
 import pandas as pd
 import requests
 from collections import Counter
@@ -41,11 +42,16 @@ def get_data():
 date, nums, PBs = get_data()
 
 # Formatting 
+# Site numbers come split by – and the excel records by - so it splits on both
 hyphenfree = []
 for x in nums:
-    hyphenfree.append(x.replace('–',', ')) 
+    hyphenfree.append(x.replace('–',', ').replace('-',', ')) 
 splitlist = ", ".join(hyphenfree)
 sep = splitlist.split(", ")
+# Only count numbers that can still be called, the ball ranges have changed over the years
+# so the old records have some numbers that dont exist in the game anymore
+sep = [x for x in sep if x.isdigit() and 1 <= int(x) <= 69]
+PBs = [x for x in PBs if 1 <= x <= 26]
 
 for n in range(0, 69):
     most_common = Counter(sep).most_common(5)
@@ -58,8 +64,9 @@ for n in range(0, 26):
     frequency_pb = [v[-1] for v in most_common_pb]
 
 sorted_nums = sorted(likely_nums, key=lambda x: (len(x), x))
-total_freq = sum(frequency + frequency_pb) 
-Chance = frac(total_freq, 292201338) # Chance = number call freq / all possible numbers i.e. 292201338
+# Chance = 1 / every possible ticket, 69 choose 5 white balls times 26 powerballs = 292201338
+# every ticket has the same odds, the forecast just goes with the numbers that get called the most
+Chance = frac(1, comb(69, 5) * 26)
 Forecast = str(" - ".join(sorted_nums))
 
 print(f"Likely numbers are . . .  {Forecast} PB: {PB}\n"
