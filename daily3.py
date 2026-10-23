@@ -1,21 +1,36 @@
 # WVLottopy: Matteo DiBiagio
 from fractions import Fraction as frac
 import pandas as pd
+import records
 import requests
 from collections import Counter
 
 def get_data():
-    url = 'https://wvlottery.com/draw-games/daily-3/?game-analyze=daily-3&what-to-search=historysearch&date-range=-1'
+    # Old records from the excel sheets, wvlottery.com took these down but they go back to the early 90s on some games
+    df_old = pd.read_excel('./excel_lotto_records/daily3.xlsx')
+    salvaged = df_old[['Date', 'Numbers']]
+
+    url = 'https://gateway.loyalty.wvlottery.com/services/jackpot/api/v1/jackpot-results?gameId=9&jackpotStatus=PAYABLE&size=500&sort=externalId,drawDate,desc&page='
     header = {
         "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36",
-        "X-Requested-With": "XMLHttpRequest"
     }
-    # Get web data
-    r = requests.get(url, headers=header)
-    dfs = pd.read_html(r.text)
+    # Get web data, the new site pulls past draws from json 500 at a time
+    web = {'Date': [], 'Numbers': []}
+    page = 0
+    while True:
+        r = requests.get(url + str(page), headers=header)
+        data = r.json()
+        for x in data['content']:
+            web['Date'].append(records.draw_day(x))
+            web['Numbers'].append('–'.join(str(n['data']) for n in x['resultData'] if n['type'] == 'REGULAR'))
+        if data['last']:
+            break
+        page += 1
+    dfs = [pd.DataFrame(web)]
     pd.set_option('display.max_rows', None)
     # Specifies no max rows, otherwise only shows 10 records
-    df = dfs[0]
+    # Adds any draw not in the sheet yet, so the excel record keeps growing
+    df = records.merge_save('./excel_lotto_records/daily3.xlsx', dfs[0], fallback=salvaged)
     df2 = df[['Date', 'Numbers']]
     date = list(df2['Date']) 
     nums = list(df2['Numbers'].astype('str')) 
@@ -24,11 +39,14 @@ def get_data():
 date, nums = get_data()
 
 # Formatting 
+# Site numbers come split by – and the excel records by - so it splits on both
 hyphenfree = []
 for x in nums:
-    hyphenfree.append(x.replace('–',', ')) 
+    hyphenfree.append(x.replace('–',', ').replace('-',', ')) 
 splitlist = ", ".join(hyphenfree)
 sep = splitlist.split(", ")
+# Only keep actual digits, gets rid of any blanks from the excel records
+sep = [x for x in sep if x.isdigit() and int(x) <= 9]
 
 for n in range(0, 10):
     most_common= Counter(sep).most_common(3)
@@ -36,10 +54,10 @@ for n in range(0, 10):
     frequency = [v[-1] for v in most_common]
 
 sorted_nums = sorted(likely_nums, key=lambda x: (len(x), x))
-total_freq = sum(frequency) 
-Chance  = frac(total_freq, 15000) # Chance = number call freq / all possible numbers i.e. 1000
+# Chance = playing the forecast as a box (any order), 3 different digits can come up 6 ways out of 1000 = 3/500
+# playing it straight (exact order) is 1/1000
+Chance = frac(6, 1000)
 Forecast = str(" - ".join(sorted_nums))
 
 print(f"Likely numbers are . . .  {Forecast} \n"
-f"With percent chance of winning being {Chance} \n"
-f"DISCLAIMER: This set's chance is innacurate due to how many numbers are drawn per day.")
+f"With percent chance of winning being {Chance}")

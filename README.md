@@ -12,9 +12,10 @@ I am welcoming anyone who wants to to port it to their own state/country to do s
 
 # CHANGELOG 
 - June 29th 2022: Added support for old data that was previously scrubbed from the lottery site. It is more accurate and includes more data than the previous one. Chance for daily3 is now bugged however due to the large amount of numbers and dates. This will be fixed soon.
+- October 2026: wvlottery.com moved their past results to a new api so the scripts pull from that now. Added Cash Pop. The site only keeps about 3 years of draws (Cash Pop only 1) so records.py adds every new draw to the excel sheets when a script runs, that way the history keeps growing instead of getting lost again. Chance is now the actual odds of the ticket, which also fixes daily3.
 
 # TODO: 
-- Correct chance numbers for Daily3
+- Nothing right now, suggestions welcome
 
 
 
